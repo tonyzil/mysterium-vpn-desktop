@@ -6,11 +6,9 @@
  */
 import { action, computed, makeObservable } from "mobx"
 import { ConnectionStatus, IdentityRegistrationStatus } from "mysterium-vpn-js"
-import { ipcRenderer } from "electron"
 import { History, Location } from "history"
 
 import { RootStore } from "../store"
-import { MainIpcListenChannels } from "../../shared/ipc"
 import { connectionInProgress } from "../connection/status"
 import { log } from "../../shared/log/log"
 
@@ -27,7 +25,6 @@ export class NavigationStore {
             goHome: action,
             navigateToInitialRoute: action,
             navigateOnConnectionStatus: action,
-            openChat: action,
         })
         this.root = root
         this.history = history
@@ -110,9 +107,5 @@ export class NavigationStore {
         } else {
             this.push(locations.proposals)
         }
-    }
-
-    openChat = (): void => {
-        ipcRenderer.send(MainIpcListenChannels.OpenSupportChat, this.root.identity.identity?.id)
     }
 }

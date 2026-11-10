@@ -11,7 +11,7 @@ import { observer } from "mobx-react-lite"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faDiscord, faFacebookSquare, faReddit, faTwitter } from "@fortawesome/free-brands-svg-icons"
 import { shell } from "electron"
-import { faBook, faBug, faComments, faFileContract } from "@fortawesome/free-solid-svg-icons"
+import { faBook, faBug, faFileContract } from "@fortawesome/free-solid-svg-icons"
 
 import { ViewContainer } from "../../../navigation/components/ViewContainer/ViewContainer"
 import { ViewNavBar } from "../../../navigation/components/ViewNavBar/ViewNavBar"
@@ -19,10 +19,9 @@ import { ViewSplit } from "../../../navigation/components/ViewSplit/ViewSplit"
 import { ViewSidebar } from "../../../navigation/components/ViewSidebar/ViewSidebar"
 import { ViewContent } from "../../../navigation/components/ViewContent/ViewContent"
 import { IconPerson } from "../../../ui-kit/icons/IconPerson"
-import { brandLight, darkBlue, greyBlue1, lightBlue } from "../../../ui-kit/colors"
+import { brandLight, greyBlue1, lightBlue } from "../../../ui-kit/colors"
 import { Heading2, Small } from "../../../ui-kit/typography"
 import { locations } from "../../../navigation/locations"
-import { useStores } from "../../../store"
 import { AppVersion } from "../../../daemon/components/AppVersion"
 
 const SideTop = styled.div`
@@ -104,26 +103,7 @@ const IconButton = styled.button<NavButtonProps & React.ButtonHTMLAttributes<HTM
     color: ${(props) => (props.active ? "#fff" : greyBlue1)};
 `
 
-const SupportChatButton = styled.button`
-    height: 40px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: none;
-
-    background: ${darkBlue};
-    color: #fff;
-
-    &:enabled:hover {
-        filter: brightness(115%);
-    }
-    & svg {
-        width: 40px !important;
-    }
-    text-align: left;
-`
-
 export const HelpView: React.FC = observer(function HelpView() {
-    const { navigation } = useStores()
     const navigate = useNavigate()
     const location = useLocation()
     const isBugReportActive = location.pathname.includes(locations.helpBugReport)
@@ -139,10 +119,6 @@ export const HelpView: React.FC = observer(function HelpView() {
                         <Small>Help using Mysterium VPN</Small>
                     </SideTop>
                     <SideBot>
-                        <SupportChatButton onClick={() => navigation.openChat()}>
-                            <FontAwesomeIcon icon={faComments} />
-                            Support chat
-                        </SupportChatButton>
                         <NavButton active={isBugReportActive} onClick={() => navigate(locations.helpBugReport)}>
                             <FontAwesomeIcon icon={faBug} />
                             Bug report

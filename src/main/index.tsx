@@ -7,8 +7,10 @@
 
 import * as path from "path"
 import * as os from "os"
+import * as fs from "fs"
+import { pathToFileURL } from "url"
 
-import { app, BrowserWindow, ipcMain, IpcMainEvent, Menu, Tray } from "electron"
+import { app, BrowserWindow, ipcMain, IpcMainEvent, Menu, shell, Tray } from "electron"
 import { autoUpdater } from "electron-updater"
 import { machineIdSync } from "node-machine-id"
 
@@ -36,8 +38,6 @@ let mainWindow: BrowserWindow | null
 export const getMainWindow = (): BrowserWindow | null => {
     return mainWindow
 }
-
-let chatWindow: BrowserWindow | null
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let tray: Tray | null
@@ -98,6 +98,15 @@ const createMainWindow = async (): Promise<BrowserWindow> => {
     log.info(`Opening in browser window: ${indexUrl.toString()}`)
     window.loadURL(indexUrl.toString())
 
+    // Electron 20 has years of unpatched Chromium bugs, so this window never loads outside pages.
+    window.webContents.setWindowOpenHandler(() => ({ action: "deny" }))
+    window.webContents.on("will-navigate", (event, url) => {
+        // Compare whole URLs: every file:// page has the same "null" origin.
+        if (new URL(url).href.split("#")[0] !== new URL(indexUrl.toString()).href.split("#")[0]) {
+            event.preventDefault()
+        }
+    })
+
     window.on("close", (event) => {
         if (app.quitting) {
             mainWindow = null
@@ -118,41 +127,6 @@ const createMainWindow = async (): Promise<BrowserWindow> => {
     })
 
     return window
-}
-
-const createChatWindow = async (id: string): Promise<BrowserWindow> => {
-    chatWindow = new BrowserWindow({
-        frame: true,
-        fullscreen: false,
-        fullscreenable: false,
-        maximizable: false,
-        width: winSize.width,
-        height: winSize.height,
-        x: (mainWindow?.getBounds().x ?? 0) + 40,
-        y: mainWindow?.getBounds().y,
-    })
-    chatWindow.removeMenu()
-    chatWindow.on("close", (event) => {
-        if (app.quitting) {
-            chatWindow = null
-        } else {
-            event.preventDefault()
-            chatWindow?.hide()
-        }
-    })
-    chatWindow.on("closed", () => {
-        chatWindow = null
-    })
-
-    const url = new URL(`file:///${path.join(__static, "support.html")}`)
-    url.search = new URLSearchParams({
-        app_id: packageJson.intercomAppId,
-        node_identity: id,
-        app_version: packageJson.version,
-    }).toString()
-    log.info(`Opening in browser window: ${url.toString()}`)
-    await chatWindow.loadURL(url.toString())
-    return chatWindow
 }
 
 if (!appInstanceLock) {
@@ -217,24 +191,12 @@ ipcMain.on(MainIpcListenChannels.ConnectionStatus, (event, status) => {
     }
     refreshTrayIcon(tray, status)
 })
-ipcMain.on(MainIpcListenChannels.OpenSupportChat, async (event: IpcMainEvent, id: string) => {
-    if (chatWindow == null) {
-        chatWindow = await createChatWindow(id)
-    }
-    chatWindow.show()
-})
 ipcMain.on(MainIpcListenChannels.OpenSecureFormPaymentWindow, async (event: IpcMainEvent, secureForm: string) => {
-    const securePaymentWindow = new BrowserWindow({
-        frame: true,
-        fullscreen: false,
-        fullscreenable: false,
-        resizable: true,
-        width: 770,
-        height: 820,
-        x: (mainWindow?.getBounds().x ?? 0) + 40,
-        y: mainWindow?.getBounds().y,
-    })
-    return await securePaymentWindow.loadURL("data:text/html;charset=UTF-8," + encodeURIComponent(secureForm))
+    // Card payment pages run third-party code, so they open in the user's up-to-date browser, not Electron 20.
+    const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "mysterium-payment-"))
+    const file = path.join(dir, "payment.html")
+    await fs.promises.writeFile(file, secureForm, { mode: 0o600 })
+    await shell.openExternal(pathToFileURL(file).toString())
 })
 
 ipcMain.on(MainIpcListenChannels.Update, () => {

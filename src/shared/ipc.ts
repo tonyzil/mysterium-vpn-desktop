@@ -18,7 +18,6 @@ export enum MainIpcListenChannels {
     GetMachineId = "get-machine-id",
     Update = "update",
     ConnectionStatus = "connection-status",
-    OpenSupportChat = "open-support-chat",
     OpenSecureFormPaymentWindow = "open-stripe-payment-window",
     MinimizeWindow = "minimize-window",
     CloseWindow = "close-window",

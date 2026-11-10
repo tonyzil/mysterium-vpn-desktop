@@ -111,7 +111,6 @@
     "@types/react": "^18.0.14"
   },
   "analyticsUrl": "https://analytics.mysterium.network",
-  "intercomAppId": "sjkeehf4",
   "electronWebpack": {
     "renderer": {
       "sourceDirectory": "src/app",
