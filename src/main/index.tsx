@@ -14,7 +14,6 @@ import { machineIdSync } from "node-machine-id"
 
 import * as packageJson from "../../package.json"
 import { winSize } from "../config"
-import { initialize as initializeSentry } from "../shared/errors/sentry"
 import { log } from "../shared/log/log"
 import { isDevelopment, isProduction } from "../utils/env"
 import { MainIpcListenChannels, WebIpcListenChannels } from "../shared/ipc"
@@ -25,9 +24,6 @@ import { supervisor } from "./node/supervisor"
 import { createMenu } from "./menu"
 import { mysteriumNode } from "./node/mysteriumNode"
 import { tequila } from "./node/tequila"
-import { cliFlags } from "./cliFlags"
-
-initializeSentry()
 
 autoUpdater.logger = log
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -242,11 +238,8 @@ ipcMain.on(MainIpcListenChannels.OpenSecureFormPaymentWindow, async (event: IpcM
 })
 
 ipcMain.on(MainIpcListenChannels.Update, () => {
-    if (app.commandLine.hasSwitch(cliFlags.NO_UPDATE)) {
-        mainWindow?.webContents.send(WebIpcListenChannels.UpdateNotAvailable)
-    } else {
-        autoUpdater.checkForUpdates()
-    }
+    // Upstream updates would replace this build, so the startup check always reports none.
+    mainWindow?.webContents.send(WebIpcListenChannels.UpdateNotAvailable)
 })
 ipcMain.on(MainIpcListenChannels.MinimizeWindow, () => {
     mainWindow?.minimize()

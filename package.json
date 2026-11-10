@@ -16,7 +16,9 @@
     "clean": "shx rm -rf dist",
     "build": "electron-webpack",
     "bundle": "yarn build && electron-builder",
-    "bundle-dev": "yarn build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder"
+    "bundle-dev": "yarn build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "bundle-mac": "yarn build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 && xattr -cr dist/mac-arm64/MysteriumDark.app && codesign --force --deep --sign - dist/mac-arm64/MysteriumDark.app",
+    "postinstall": "node ci/use-node.js"
   },
   "engines": {
     "node": ">=16"
@@ -110,7 +112,6 @@
   },
   "analyticsUrl": "https://analytics.mysterium.network",
   "intercomAppId": "sjkeehf4",
-  "sentryDsn": "https://5c3208e8d6124f2db303a2d12c7f48b8@o136129.ingest.sentry.io/5222592",
   "electronWebpack": {
     "renderer": {
       "sourceDirectory": "src/app",

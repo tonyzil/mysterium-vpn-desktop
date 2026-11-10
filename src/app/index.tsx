@@ -14,14 +14,10 @@ import { createHashHistory } from "history"
 import { observe } from "mobx"
 import { createRoot } from "react-dom/client"
 
-import { initialize as initializeSentry } from "../shared/errors/sentry"
-
 import { Routes } from "./navigation/components/Routes/Routes"
 import { createRootStore, StoreContext } from "./store"
 import { brand, brandLight, greyBlue1 } from "./ui-kit/colors"
 import { analytics } from "./analytics/analytics"
-
-initializeSentry()
 
 let globalFontStyle
 switch (platform()) {

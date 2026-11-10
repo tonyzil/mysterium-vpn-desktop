@@ -13,7 +13,6 @@ import * as packageJson from "../../../package.json"
 import { rootStore } from "../store"
 import { MainIpcListenChannels } from "../../shared/ipc"
 import { log } from "../../shared/log/log"
-import { isDevelopment } from "../../utils/env"
 
 import { Client, Event } from "./event"
 
@@ -81,5 +80,5 @@ export class Analytics {
 
 export const analytics = new Analytics({
     baseUrl: "https://consumetrics.mysterium.network/api/v1",
-    disabled: isDevelopment(),
+    disabled: true,
 })

@@ -7,7 +7,6 @@
 import { platform } from "os"
 
 import { App, BrowserWindow, Menu, Tray } from "electron"
-import { autoUpdater } from "electron-updater"
 import { ConnectionStatus } from "mysterium-vpn-js"
 
 import * as packageJson from "../../package.json"
@@ -45,12 +44,6 @@ export const createTray = (app: App, win: BrowserWindow): Tray => {
             },
             {
                 type: "separator",
-            },
-            {
-                label: "Check for updates",
-                click: async (): Promise<void> => {
-                    await autoUpdater.checkForUpdatesAndNotify()
-                },
             },
             {
                 label: "Repair supervisor",
